@@ -6,7 +6,6 @@ from async_tasks import async_tasks
 # Collect Garbage
 async def collect_gc():
     gc.collect()
-    print("hi")
 
 
 # Main execution
