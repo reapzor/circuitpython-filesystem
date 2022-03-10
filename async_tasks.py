@@ -1,0 +1,136 @@
+import asyncio
+import time
+
+
+class AsyncTasks:
+
+    def __init__(self):
+        self.tasks = []
+        self.running = False
+        self.monitor_task = None
+        self.waiting = False
+
+    async def __monitor_tasks(self):
+        if self.running:
+            for task in self.tasks:
+                if not task.running:
+                    self.tasks.remove(task)
+        else:
+            for task in self.tasks:
+                if task.running:
+                    await task.stop()
+            self.tasks.clear()
+
+    def add(self, task, args=None, kwargs=None, interval=0, count=0, initial_delay=0):
+        task = TimerTask(task=task, args=args, kwargs=kwargs, interval=interval, count=count, initial_delay=initial_delay)
+        self.tasks.append(task)
+        if self.running:
+            task.start()
+        return task
+
+    def after(self, initial_delay, task, args=None, kwargs=None, count=1):
+        self.add(task, args=args, kwargs=kwargs, count=count, initial_delay=initial_delay)
+
+    def every(self, interval, task, args=None, kwargs=None, initial_delay=0):
+        self.add(task, args=args, kwargs=kwargs, interval=interval, initial_delay=initial_delay)
+
+    def repeat(self, task, args=None, kwargs=None, initial_delay=0):
+        self.add(task, args=args, kwargs=kwargs, initial_delay=initial_delay)
+
+    def start(self):
+        if self.monitor_task is None:
+            self.running = True
+            self.monitor_task = TimerTask(self.__monitor_tasks, interval=50)
+            self.monitor_task.start()
+            for task in self.tasks:
+                task.start()
+
+    async def stop(self):
+        if self.monitor_task is not None:
+            self.running = False
+            while len(self.tasks) > 0:
+                await asyncio.sleep_ms(1)
+            await self.monitor_task.stop()
+            self.monitor_task = None
+
+    async def wait(self):
+        if self.monitor_task is not None:
+            while len(self.tasks) > 0:
+                await asyncio.sleep_ms(1)
+            self.running = False
+            await self.monitor_task.stop()
+            self.monitor_task = None
+
+
+class TimerTask:
+
+    def __init__(self, task, args=None, kwargs=None, interval=0, count=0, initial_delay=0):
+        self.interval = interval
+        self.count = count
+        self.current_count = 0
+        self.initial_delay = initial_delay
+        self.running = False
+        self.task = task
+        self.task_id = None
+        self.start_execution_time = None
+        if args is None:
+            self.args = []
+        else:
+            self.args = args
+        if kwargs is None:
+            self.kwargs = {}
+        else:
+            self.kwargs = kwargs
+
+    async def __timed_sleep(self, exp_sleep_time=0, next_time_base=None):
+        if not exp_sleep_time:
+            await asyncio.sleep_ms(0)
+            return
+        if next_time_base is None:
+            next_time = time.monotonic_ns() + (exp_sleep_time * 10000000)
+        else:
+            next_time = next_time_base + (exp_sleep_time * 1000000)
+        cur_time = time.monotonic_ns()
+        while cur_time < next_time:
+            time_dif = next_time - cur_time
+            if time_dif > 200000000:
+                sleep_time = int((time_dif - 100000000) / 1000000)
+            else:
+                sleep_time = 0
+            if time_dif > 3000000:
+                await asyncio.sleep_ms(sleep_time)
+            cur_time = time.monotonic_ns()
+        return cur_time - (cur_time - next_time)
+
+    async def __task(self):
+        if self.initial_delay > 0:
+            await self.__timed_sleep(exp_sleep_time=self.initial_delay, next_time_base=self.start_execution_time)
+        next_time_base = time.monotonic_ns()
+        while self.running:
+            self.current_count += 1
+            await self.task(*self.args, **self.kwargs)
+            if not self.running:
+                break
+            if self.count != 0 and self.current_count >= self.count:
+                break
+            if self.count > 1 or self.count == 0:
+                next_time_base = await self.__timed_sleep(exp_sleep_time=self.interval, next_time_base=next_time_base)
+        self.running = False
+        self.current_count = 0
+        self.task_id = None
+
+    def start(self):
+        if self.task_id is None:
+            self.running = True
+            self.start_execution_time = time.monotonic_ns()
+            self.task_id = asyncio.create_task(self.__task())
+
+    async def stop(self):
+        self.running = False
+        await self.wait()
+
+    async def wait(self):
+        await asyncio.gather(self.task_id)
+
+
+async_tasks = AsyncTasks()
