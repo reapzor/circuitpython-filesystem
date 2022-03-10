@@ -90,6 +90,9 @@ class TimerTask:
             await self.task(*self.args, **self.kwargs)
             if not self.running or (self.count != 0 and self.current_count >= self.count):
                 break
+            if self.interval == 0:
+                await asyncio.sleep_ms(0)
+                continue
             next_time = ticks_add(next_time_base, self.interval)
             cur_time = ticks()
             if ticks_less(cur_time, next_time):
