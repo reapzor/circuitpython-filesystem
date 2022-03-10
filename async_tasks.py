@@ -21,21 +21,69 @@ class AsyncTasks:
                     await task.stop()
             self.tasks.clear()
 
-    def add(self, task, args=None, kwargs=None, interval=0, count=0, initial_delay=0):
-        task = TimerTask(task=task, args=args, kwargs=kwargs, interval=interval, count=count, initial_delay=initial_delay)
+    def add(self,
+            task,
+            args=None,
+            kwargs=None,
+            interval=0,
+            count=0,
+            initial_delay=0):
+        task = TimerTask(task=task,
+                         args=args,
+                         kwargs=kwargs,
+                         interval=interval,
+                         count=count,
+                         initial_delay=initial_delay)
         self.tasks.append(task)
         if self.running:
             task.start()
         return task
 
-    def after(self, initial_delay, task, args=None, kwargs=None, count=1):
-        self.add(task, args=args, kwargs=kwargs, count=count, initial_delay=initial_delay)
+    def after(self,
+              initial_delay,
+              task,
+              args=None,
+              kwargs=None,
+              count=1):
+        self.add(task,
+                 args=args,
+                 kwargs=kwargs,
+                 count=count,
+                 initial_delay=initial_delay)
 
-    def every(self, interval, task, args=None, kwargs=None, initial_delay=0):
-        self.add(task, args=args, kwargs=kwargs, interval=interval, initial_delay=initial_delay)
+    def every(self,
+              interval,
+              task,
+              args=None,
+              kwargs=None,
+              initial_delay=0):
+        self.add(task,
+                 args=args,
+                 kwargs=kwargs,
+                 interval=interval,
+                 initial_delay=initial_delay)
 
-    def repeat(self, task, args=None, kwargs=None, initial_delay=0):
-        self.add(task, args=args, kwargs=kwargs, initial_delay=initial_delay)
+    def repeat(self,
+               task,
+               args=None,
+               kwargs=None,
+               initial_delay=0):
+        self.add(task,
+                 args=args,
+                 kwargs=kwargs,
+                 initial_delay=initial_delay)
+
+    def repeat_for(self,
+                   count,
+                   task,
+                   args=None,
+                   kwargs=None,
+                   initial_delay=0):
+        self.add(task,
+                 args=args,
+                 kwargs=kwargs,
+                 initial_delay=initial_delay,
+                 count=count)
 
     def start(self):
         if self.monitor_task is None:
@@ -64,7 +112,13 @@ class AsyncTasks:
 
 class TimerTask:
 
-    def __init__(self, task, args=None, kwargs=None, interval=0, count=0, initial_delay=0):
+    def __init__(self,
+                 task,
+                 args=None,
+                 kwargs=None,
+                 interval=0,
+                 count=0,
+                 initial_delay=0):
         self.interval = interval
         self.count = count
         self.current_count = 0
