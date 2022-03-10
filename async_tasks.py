@@ -1,5 +1,5 @@
+from adafruit_ticks import ticks_ms as ticks, ticks_diff, ticks_add, ticks_less
 import asyncio
-import time
 
 
 class AsyncTasks:
@@ -85,27 +85,27 @@ class TimerTask:
     async def __timed_sleep(self, exp_sleep_time=0, next_time_base=None):
         if not exp_sleep_time:
             await asyncio.sleep_ms(0)
-            return
+            return ticks()
         if next_time_base is None:
-            next_time = time.monotonic_ns() + (exp_sleep_time * 10000000)
+            next_time = ticks_add(ticks(), exp_sleep_time)
         else:
-            next_time = next_time_base + (exp_sleep_time * 1000000)
-        cur_time = time.monotonic_ns()
-        while cur_time < next_time:
-            time_dif = next_time - cur_time
-            if time_dif > 200000000:
-                sleep_time = int((time_dif - 100000000) / 1000000)
+            next_time = ticks_add(next_time_base, exp_sleep_time)
+        cur_time = ticks()
+        while ticks_less(cur_time, next_time):
+            time_dif = ticks_diff(next_time, cur_time)
+            if time_dif > 200:
+                sleep_time = time_dif - 100
             else:
                 sleep_time = 0
-            if time_dif > 3000000:
+            if time_dif > 3:
                 await asyncio.sleep_ms(sleep_time)
-            cur_time = time.monotonic_ns()
-        return cur_time - (cur_time - next_time)
+            cur_time = ticks()
+        return ticks_diff(cur_time, ticks_diff(cur_time, next_time))
 
     async def __task(self):
         if self.initial_delay > 0:
             await self.__timed_sleep(exp_sleep_time=self.initial_delay, next_time_base=self.start_execution_time)
-        next_time_base = time.monotonic_ns()
+        next_time_base = ticks()
         while self.running:
             self.current_count += 1
             await self.task(*self.args, **self.kwargs)
@@ -122,7 +122,7 @@ class TimerTask:
     def start(self):
         if self.task_id is None:
             self.running = True
-            self.start_execution_time = time.monotonic_ns()
+            self.start_execution_time = ticks()
             self.task_id = asyncio.create_task(self.__task())
 
     async def stop(self):
