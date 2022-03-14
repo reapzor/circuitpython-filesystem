@@ -153,7 +153,10 @@ class TimerTask:
                 time_dif = ticks_diff(next_time, cur_time)
                 await asyncio.sleep_ms(time_dif)
                 cur_time = ticks()
-            next_time_base = ticks_diff(cur_time, ticks_diff(cur_time, next_time))
+            next_time_sync = ticks_diff(cur_time, next_time)
+            if next_time_sync > self.interval:
+                next_time_sync = 0
+            next_time_base = ticks_diff(cur_time, next_time_sync)
         self.running = False
         self.current_count = 0
 
