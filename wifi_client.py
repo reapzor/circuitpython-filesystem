@@ -2,7 +2,6 @@ import asyncio
 from async_tasks import async_tasks
 from settings import settings, settings_missing
 import wifi
-import ipaddress
 import supervisor
 
 

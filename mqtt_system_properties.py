@@ -1,11 +1,9 @@
 import time
-
 from async_tasks import async_tasks
 import wifi
 from wifi_client import WifiClient
 import gc
 import os
-from adafruit_ticks import ticks_ms as ticks, ticks_diff
 
 
 class MQTTSystemProperties:

@@ -1,5 +1,3 @@
-import gc
-
 from async_tasks import async_tasks
 from adafruit_minimqtt import adafruit_minimqtt as mqtt
 import socketpool
@@ -8,8 +6,6 @@ from mqtt_property import MQTTProperty
 import wifi
 from wifi_client import wifi_client
 import asyncio
-import errno
-import supervisor
 
 
 class MQTTClient:
