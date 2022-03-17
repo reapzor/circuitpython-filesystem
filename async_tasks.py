@@ -36,6 +36,7 @@ class AsyncTasks:
                          initial_delay=initial_delay)
         self.tasks.append(task)
         if self.running:
+            print("Start")
             task.start()
         return task
 
@@ -151,8 +152,10 @@ class TimerTask:
             cur_time = ticks()
             if ticks_less(cur_time, next_time):
                 time_dif = ticks_diff(next_time, cur_time)
-                await asyncio.sleep_ms(time_dif)
-                cur_time = ticks()
+            else:
+                time_dif = 1
+            await asyncio.sleep_ms(time_dif)
+            cur_time = ticks()
             next_time_sync = ticks_diff(cur_time, next_time)
             if next_time_sync > self.interval:
                 next_time_sync = 0

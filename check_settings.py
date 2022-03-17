@@ -3,7 +3,7 @@ import storage
 
 
 def check_settings_file():
-    if "/settings.py" not in os.listdir("/"):
+    if "settings.py" not in os.listdir("/"):
         storage.remount("/", False)
         with open("/settings.py", 'w') as config:
             settings_content = (

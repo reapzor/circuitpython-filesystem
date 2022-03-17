@@ -2,7 +2,8 @@ import asyncio
 import gc
 from async_tasks import async_tasks
 from wifi_client import wifi_client
-
+from mqtt_client import mqtt_client
+from mqtt_system_properties import mqtt_system_properties
 
 # Collect Garbage
 async def collect_gc():
@@ -17,6 +18,12 @@ async def main():
     await wifi_client.connect()
     # Start tasks
     async_tasks.start()
+    print("here")
+    # Start mqtt client
+    await mqtt_client.connect()
+    await mqtt_system_properties.generate_properties(mqtt_client)
+    mqtt_system_properties.start_monitor()
+    print("here")
     # Wait for tasks to finish
     await async_tasks.wait()
 

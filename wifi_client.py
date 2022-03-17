@@ -14,27 +14,38 @@ class WifiClient:
         self.wifi_connected = False
         self.monitor_task = None
 
-    def __prettify_mac(self, mac_bytes):
+    @staticmethod
+    def prettify_mac(mac_bytes):
         result = ""
         for b in mac_bytes:
             result += "%02x:" % b
-        return result.upper()
+        return result.upper()[:-1]
+
+    @staticmethod
+    def signal_strength(db):
+        print(db)
+        if db <= -95:
+            return 0
+        if db >= -45:
+            return 100
+        return 2 * (db + 95)
 
     async def __monitor_wifi(self):
-        if not self.wifi_connected:
-            return
-        response = wifi.radio.ping(ipaddress.ip_address(settings.ping_ip), timeout=0.5)
-        if response is None:
-            self.wifi_ping_failures += 1
-        else:
-            self.wifi_ping_failures = 0
-        if self.wifi_ping_failures >= self.ping_disconnect_threshold:
-            print(f"Multiple failures attempting to ping {settings.ping_ip}. Reconnecting Wifi.")
-            self.__do_disconnect()
-            self.wifi_reconnects += 1
-            await asyncio.sleep_ms(1000)
-            await self.__do_connect()
-            self.wifi_ping_failures = 0
+        pass
+        # if not self.wifi_connected:
+        #     return
+        # response = wifi.radio.ping(ipaddress.ip_address(settings.ping_ip), timeout=0.5)
+        # if response is None:
+        #     self.wifi_ping_failures += 1
+        # else:
+        #     self.wifi_ping_failures = 0
+        # if self.wifi_ping_failures >= self.ping_disconnect_threshold:
+        #     print(f"Multiple failures attempting to ping {settings.ping_ip}. Reconnecting Wifi.")
+        #     self.__do_disconnect()
+        #     self.wifi_reconnects += 1
+        #     await asyncio.sleep_ms(1000)
+        #     await self.__do_connect()
+        #     self.wifi_ping_failures = 0
 
     async def __do_connect(self):
         print(f"Connecting to {settings.wifi_ssid}. Reconnects: {self.wifi_reconnects}")
@@ -49,7 +60,7 @@ class WifiClient:
         print(f"Connected with IP: {wifi.radio.ipv4_address}")
 
     async def connect(self):
-        print(f"My MAC addr: {self.__prettify_mac(wifi.radio.mac_address)}")
+        print(f"My MAC addr: {WifiClient.prettify_mac(wifi.radio.mac_address)}")
         if settings_missing():
             print("Not connecting to wifi, no credentials.")
             return
@@ -72,6 +83,12 @@ class WifiClient:
             self.monitor_task = None
             self.wifi_reconnects = 0
             self.wifi_ping_failures = 0
+
+    async def reconnnect(self):
+        self.__do_disconnect()
+        self.wifi_reconnects += 1
+        await asyncio.sleep_ms(1000)
+        await self.__do_connect()
 
 
 wifi_client = WifiClient()
