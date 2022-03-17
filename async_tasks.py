@@ -36,7 +36,6 @@ class AsyncTasks:
                          initial_delay=initial_delay)
         self.tasks.append(task)
         if self.running:
-            print("Start")
             task.start()
         return task
 

@@ -5,6 +5,7 @@ from wifi_client import wifi_client
 from mqtt_client import mqtt_client
 from mqtt_system_properties import mqtt_system_properties
 
+
 # Collect Garbage
 async def collect_gc():
     gc.collect()
@@ -18,7 +19,6 @@ async def main():
     await wifi_client.connect()
     # Start tasks
     async_tasks.start()
-    print("here")
     # Start mqtt client
     await mqtt_client.connect()
     await mqtt_system_properties.generate_properties(mqtt_client)

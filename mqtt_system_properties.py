@@ -32,7 +32,6 @@ class MQTTSystemProperties:
         await self.__monitor()
 
     async def __monitor(self):
-        start_tick = ticks()
         if self.ip != wifi.radio.ipv4_address:
             self.ip = wifi.radio.ipv4_address
             await self.ip_addr.publish(str(self.ip))
@@ -42,7 +41,6 @@ class MQTTSystemProperties:
         await self.mem_free.publish(gc.mem_free()/1024)
         fs_stat = os.statvfs('/')
         await self.storage_free.publish(fs_stat[0] * fs_stat[3] / 1024)
-        print(f"Ticks Diff: {ticks_diff(ticks(), start_tick)}")
 
     def start_monitor(self):
         self.monitor_task = async_tasks.every(5000, self.__monitor)
