@@ -23,7 +23,6 @@ async def main():
     await mqtt_client.connect()
     await mqtt_system_properties.generate_properties(mqtt_client)
     mqtt_system_properties.start_monitor()
-    print("here")
     # Wait for tasks to finish
     await async_tasks.wait()
 

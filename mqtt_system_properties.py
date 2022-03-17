@@ -28,20 +28,20 @@ class MQTTSystemProperties:
         self.ip_addr = mqtt_client.system_property("ip_addr")
         self.mem_free = mqtt_client.system_property("mem_free")
         self.storage_free = mqtt_client.system_property("storage_free")
-        self.mac_addr.publish(WifiClient.prettify_mac(wifi.radio.mac_address))
+        await self.mac_addr.publish(WifiClient.prettify_mac(wifi.radio.mac_address))
         await self.__monitor()
 
     async def __monitor(self):
         start_tick = ticks()
         if self.ip != wifi.radio.ipv4_address:
             self.ip = wifi.radio.ipv4_address
-            self.ip_addr.publish(str(self.ip))
-        self.battery.publish("100")
-        self.wifi_strength.publish(WifiClient.signal_strength(wifi.radio.ap_info.rssi))
-        self.uptime.publish(time.monotonic())
-        self.mem_free.publish(gc.mem_free()/1024)
+            await self.ip_addr.publish(str(self.ip))
+        await self.battery.publish("100")
+        await self.wifi_strength.publish(WifiClient.signal_strength(wifi.radio.ap_info.rssi))
+        await self.uptime.publish(time.monotonic())
+        await self.mem_free.publish(gc.mem_free()/1024)
         fs_stat = os.statvfs('/')
-        self.storage_free.publish(fs_stat[0] * fs_stat[3] / 1024)
+        await self.storage_free.publish(fs_stat[0] * fs_stat[3] / 1024)
         print(f"Ticks Diff: {ticks_diff(ticks(), start_tick)}")
 
     def start_monitor(self):

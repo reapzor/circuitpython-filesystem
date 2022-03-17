@@ -50,14 +50,19 @@ class WifiClient:
     async def __do_connect(self):
         print(f"Connecting to {settings.wifi_ssid}. Reconnects: {self.wifi_reconnects}")
         wifi.radio.enabled = True
-        wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
-        if wifi.radio.ap_info is None:
+        failure = False
+        try:
+            wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
+            self.wifi_connected = True
+            print(f"Connected with IP: {wifi.radio.ipv4_address}")
+        except Exception as e:
+            print(type(e).__name__)
+            failure = True
+        if wifi.radio.ap_info is None or failure:
             self.wifi_reconnects += 1
             print(f"Failure connecting to Wifi. Trying again.")
             await asyncio.sleep_ms(1000)
             await self.__do_connect()
-        self.wifi_connected = True
-        print(f"Connected with IP: {wifi.radio.ipv4_address}")
 
     async def connect(self):
         print(f"My MAC addr: {WifiClient.prettify_mac(wifi.radio.mac_address)}")

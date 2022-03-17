@@ -1,3 +1,5 @@
+import gc
+
 from async_tasks import async_tasks
 from adafruit_minimqtt import adafruit_minimqtt as mqtt
 import socketpool
@@ -6,6 +8,7 @@ from mqtt_property import MQTTProperty
 import wifi
 from wifi_client import wifi_client
 import asyncio
+import errno
 
 
 class MQTTClient:
@@ -20,14 +23,19 @@ class MQTTClient:
         self.reconnect_count = 0
         self.reconnect_attempts = 0
         self.publish_attempts = 0
+        self.loop_attempts = 0
 
     async def do_loop(self):
         print("tick")
         try:
+            self.mqtt_client.is_connected()
             self.mqtt_client.loop(timeout=0.7)
-        except:
-            print("hi")
-
+        except (mqtt.MMQTTException, OSError) as e:
+            print(f"Loop exception: {e}")
+            self.loop_attempts += 1
+            if self.loop_attempts > 0:
+                self.loop_attempts = 0
+                await self.reconnect()
 
     def on_connnect(self, client, userdata, flags, rc):
         print("Connecty")
@@ -36,15 +44,22 @@ class MQTTClient:
         print("Disconnecty")
 
     async def reconnect(self):
-        await self.disconnect()
+        self._do_disconnect()
         self.reconnect_count += 1
-        self.connect()
+        await self._do_connect()
 
     async def _do_connect(self):
+        print(f"Connecting MQTT at {settings.mqtt_broker}. Reconnects: ({self.reconnect_count}), Attempts: ({self.reconnect_attempts})")
         try:
             self.mqtt_client.connect()
+            self.mqtt_client.loop()
+            await self.connected_property.publish(value=1)
+            self.mqtt_client.loop()
             self.reconnect_attempts = 0
-        except:
+            self.loop_attempts = 0
+            self.publish_attempts = 0
+        except (mqtt.MMQTTException, OSError, RuntimeError) as e:
+            print(f"Connect exception: {e}")
             self.reconnect_attempts += 1
             await asyncio.sleep_ms(1000)
             await self._do_connect()
@@ -67,21 +82,22 @@ class MQTTClient:
                                   retain=True)
         self.mqtt_client.on_connect = self.on_connnect
         self.mqtt_client.on_disconnect = self.on_disconnect
-        print(f"Connecting MQTT at {settings.mqtt_broker}. Reconnects: ({self.reconnect_count}), Attempts: ({self.reconnect_attempts})")
         await self._do_connect()
-        self.mqtt_client.loop()
-        self.connected_property.publish(value=1)
-        self.mqtt_client.loop()
         self.loop_task = async_tasks.every(2000, self.do_loop)
+
+    def _do_disconnect(self):
+        if self.mqtt_client:
+            try:
+                self.mqtt_client.disconnect()
+            except (mqtt.MMQTTException, OSError):
+                pass
 
     async def disconnect(self):
         if self.loop_task:
+            print("stop task")
             await self.loop_task.stop()
         self.loop_task = None
-        mqtt_client = self.mqtt_client
-        self.mqtt_client = None
-        if mqtt_client:
-            mqtt_client.disconnect()
+        self._do_disconnect()
 
     def property(self, group, key, value=-1):
         property = MQTTProperty(group=group, key=key, value=value, mqtt_client=self)
@@ -103,7 +119,8 @@ class MQTTClient:
     async def _do_publish(self, path, value, retain):
         try:
             self.mqtt_client.publish(path, value, retain=retain)
-        except:
+        except (mqtt.MMQTTException, OSError) as e:
+            print(f"Publish exception: {e}")
             self.publish_attempts += 1
             if self.publish_attempts >= 3:
                 self.publish_attempts = 0
