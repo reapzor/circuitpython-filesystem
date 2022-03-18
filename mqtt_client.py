@@ -20,7 +20,6 @@ class MQTTClient:
         self.reconnect_count = 0
         self.reconnect_attempts = 1
         self.publish_attempts = 1
-        self.loop_attempts = 1
         self.connected = False
 
     async def do_loop(self):
@@ -31,10 +30,7 @@ class MQTTClient:
             self.mqtt_client.loop(timeout=0.7)
         except (mqtt.MMQTTException, OSError) as e:
             print(f"Loop exception: {e}")
-            self.loop_attempts += 1
-            if self.loop_attempts > 0:
-                self.loop_attempts = 1
-                await self.reconnect()
+            await self.reconnect()
 
     def on_connnect(self, client, userdata, flags, rc):
         pass
@@ -69,7 +65,6 @@ class MQTTClient:
             await self.connected_property.publish(value=1)
             self.mqtt_client.loop()
             self.reconnect_attempts = 1
-            self.loop_attempts = 1
             self.publish_attempts = 1
         except (mqtt.MMQTTException, OSError, RuntimeError) as e:
             print(f"Connect exception: {e}")
@@ -125,7 +120,7 @@ class MQTTClient:
         except (mqtt.MMQTTException, OSError) as e:
             print(f"Publish exception: {e}")
             self.publish_attempts += 1
-            if self.publish_attempts > 3:
+            if self.publish_attempts > 2:
                 self.publish_attempts = 1
                 await self.reconnect()
             await asyncio.sleep_ms(1000)
