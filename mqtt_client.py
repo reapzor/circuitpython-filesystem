@@ -22,6 +22,11 @@ class MQTTClient:
         self.publish_attempts = 1
         self.connected = False
 
+    async def publish_connected(self):
+        if not self.connected:
+            return
+        await self.connected_property.publish(value=1)
+
     async def do_loop(self):
         if not self.connected:
             return
@@ -63,6 +68,10 @@ class MQTTClient:
             self.connected = True
             self.mqtt_client.loop()
             await self.connected_property.publish(value=1)
+            async_tasks.add(self.publish_connected,
+                            interval=5000,
+                            count=2,
+                            initial_delay=5000)
             self.mqtt_client.loop()
             self.reconnect_attempts = 1
             self.publish_attempts = 1

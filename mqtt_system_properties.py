@@ -17,8 +17,9 @@ class MQTTSystemProperties:
         self.storage_free = None
         self.monitor_task = None
         self.ip = None
+        self.initial_publish = True
 
-    async def generate_properties(self, mqtt_client):
+    def generate_properties(self, mqtt_client):
         self.battery = mqtt_client.system_property("battery")
         self.wifi_strength = mqtt_client.system_property("wifi_strength")
         self.uptime = mqtt_client.system_property("uptime")
@@ -26,10 +27,11 @@ class MQTTSystemProperties:
         self.ip_addr = mqtt_client.system_property("ip_addr")
         self.mem_free = mqtt_client.system_property("mem_free")
         self.storage_free = mqtt_client.system_property("storage_free")
-        await self.mac_addr.publish(WifiClient.prettify_mac(wifi.radio.mac_address))
-        await self.__monitor()
 
     async def __monitor(self):
+        if self.initial_publish:
+            self.initial_publish = False
+            await self.mac_addr.publish(WifiClient.prettify_mac(wifi.radio.mac_address))
         if self.ip != wifi.radio.ipv4_address:
             self.ip = wifi.radio.ipv4_address
             await self.ip_addr.publish(str(self.ip))
