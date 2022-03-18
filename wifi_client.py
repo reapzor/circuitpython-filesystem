@@ -55,7 +55,7 @@ class WifiClient:
         if settings_missing():
             print("Not connecting to wifi, no credentials.")
             return
-        if self.wifi_connected is not None:
+        if self.wifi_connected:
             print("Already connect(ed)(ing) to wifi.")
             return
         await self.__do_connect()
