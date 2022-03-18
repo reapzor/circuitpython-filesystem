@@ -88,7 +88,7 @@ class AsyncTasks:
     def start(self):
         if self.monitor_task is None:
             self.running = True
-            self.monitor_task = TimerTask(self.__monitor_tasks, interval=100)
+            self.monitor_task = TimerTask(self.__monitor_tasks, interval=2000)
             for task in self.tasks:
                 task.start()
             self.monitor_task.start()
@@ -157,6 +157,7 @@ class TimerTask:
             cur_time = ticks()
             next_time_sync = ticks_diff(cur_time, next_time)
             if next_time_sync > self.interval:
+                print(f"Task off by {next_time_sync - self.interval}, Interval: {self.interval}")
                 next_time_sync = 0
             next_time_base = ticks_diff(cur_time, next_time_sync)
         self.running = False

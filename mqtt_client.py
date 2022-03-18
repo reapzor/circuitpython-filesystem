@@ -81,7 +81,7 @@ class MQTTClient:
             print("Not connecting MQTT Client - No server settings")
             return
         await self._do_connect()
-        self.loop_task = async_tasks.every(2000, self.do_loop)
+        self.loop_task = async_tasks.every(6000, self.do_loop)
 
     def _do_disconnect(self):
         if self.mqtt_client:
