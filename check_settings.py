@@ -11,7 +11,6 @@ def check_settings_file():
                         "    wifi_ssid = None,    # Wifi SSID\n" +
                         "    wifi_pass = None,    # Wifi Pass\n" +
                         "    mqtt_broker = None,  # MQTT broker/server IP\n" +
-                        "    ping_ip = None,      # IP to ping when checking for active wifi/internet\n" +
                         "    thing_name = None    # Unique name of this device for mqtt eventing\n" +
                         "\n\n" +
                         "settings = Settings()\n" +
