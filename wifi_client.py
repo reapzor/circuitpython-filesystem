@@ -2,6 +2,7 @@ import asyncio
 from settings import settings, settings_missing
 import wifi
 import supervisor
+from hardware import hardware
 
 
 class WifiClient:
@@ -34,6 +35,7 @@ class WifiClient:
         failure = False
         try:
             wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
+            hardware.status_led().blink_green()
             self.wifi_reconnects += 1
             self.wifi_connected = True
             self.wifi_connect_attempts = 1
