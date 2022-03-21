@@ -6,6 +6,7 @@ from mqtt_property import MQTTProperty
 import wifi
 from wifi_client import wifi_client
 import asyncio
+from hardware import hardware
 
 
 class MQTTClient:
@@ -21,11 +22,6 @@ class MQTTClient:
         self.reconnect_attempts = 1
         self.publish_attempts = 1
         self.connected = False
-
-    async def publish_connected(self):
-        if not self.connected:
-            return
-        await self.connected_property.publish(value=1)
 
     async def do_loop(self):
         if not self.connected:
@@ -54,6 +50,7 @@ class MQTTClient:
         try:
             self.mqtt_client = mqtt.MQTT(
                 broker=settings.mqtt_broker,
+                client_id="thing_" + settings.thing_name.lower(),
                 port=1883,
                 socket_pool=socketpool.SocketPool(wifi.radio)
             )
@@ -63,19 +60,19 @@ class MQTTClient:
             self.mqtt_client.on_connect = self.on_connnect
             self.mqtt_client.on_disconnect = self.on_disconnect
             self.mqtt_client.connect()
+            if hardware:
+                hardware.status_led().blink_green(count=2, interval_on=500, interval_off=300)
             print(f"Connected to MQTT as \"{settings.thing_name}\".")
             self.reconnect_count += 1
             self.connected = True
             self.mqtt_client.loop()
             await self.connected_property.publish(value=1)
-            async_tasks.add(self.publish_connected,
-                            interval=5000,
-                            count=2,
-                            initial_delay=5000)
             self.mqtt_client.loop()
             self.reconnect_attempts = 1
             self.publish_attempts = 1
         except (mqtt.MMQTTException, OSError, RuntimeError) as e:
+            if hardware:
+                hardware.status_led().blink_red(count=2, interval_on=500, interval_off=300)
             print(f"Connect exception: {e}")
             self.reconnect_attempts += 1
             await asyncio.sleep_ms(1000)

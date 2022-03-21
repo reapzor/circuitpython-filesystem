@@ -35,20 +35,26 @@ class WifiClient:
         failure = False
         try:
             wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
-            hardware.status_led().blink_green()
+            if hardware:
+                hardware.status_led().blink_green(count=1, interval_on=500, interval_off=500)
             self.wifi_reconnects += 1
             self.wifi_connected = True
             self.wifi_connect_attempts = 1
             print(f"Connected with IP: {wifi.radio.ipv4_address}")
         except Exception as e:
-            print(type(e).__name__)
             failure = True
         if wifi.radio.ap_info is None or failure:
             self.wifi_connect_attempts += 1
             if self.wifi_connect_attempts > 5:
+                if hardware:
+                    hardware.status_led().set_purple()
+                    from time import sleep
+                    sleep(500)
                 print("Repeated failures connecting to Wifi. Performing a Soft Reboot.")
                 supervisor.reload()
             print(f"Failure connecting to Wifi. Trying again.")
+            if hardware:
+                hardware.status_led().blink_red(count=1, interval_on=500, interval_off=500)
             await asyncio.sleep_ms(1000)
             await self.__do_connect()
 
