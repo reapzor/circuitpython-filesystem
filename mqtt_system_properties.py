@@ -43,7 +43,7 @@ class MQTTSystemProperties:
         await self.storage_free.publish(fs_stat[0] * fs_stat[3] / 1024)
 
     def start_monitor(self):
-        self.monitor_task = async_tasks.every(15000, self.__monitor)
+        self.monitor_task = async_tasks.every(1000, self.__monitor)
 
     async def stop_monitor(self):
         await self.monitor_task.stop()

@@ -8,19 +8,19 @@ def check_settings_file():
         with open("/settings.py", 'w') as config:
             settings_content = (
                         "class Settings:\n" +
-                        "    wifi_ssid = None,    # Wifi SSID\n" +
-                        "    wifi_pass = None,    # Wifi Pass\n" +
-                        "    mqtt_broker = None,  # MQTT broker/server IP\n" +
-                        "    thing_name = None    # Unique name of this device for mqtt eventing\n" +
+                        "    wifi_ssid = \"\"    # Wifi SSID\n" +
+                        "    wifi_pass = \"\"    # Wifi Pass\n" +
+                        "    mqtt_broker = \"\"  # MQTT broker/server IP\n" +
+                        "    thing_name = \"\"    # Unique name of this device for mqtt eventing\n" +
                         "\n\n" +
                         "settings = Settings()\n" +
                         "\n\n" +
                         "def settings_missing():\n" +
-                        "    if settings.thing_name is None:\n" +
+                        "    if not settings.thing_name:\n" +
                         "        print('Please configure settings.py.')\n" +
                         "        return True\n" +
                         "    return False\n")
             config.write(settings_content)
             config.close()
-            print("Generates settings.py file. Please fill it out!")
+            print("Generated new settings.py file. Please fill it out!")
         storage.remount("/", True)

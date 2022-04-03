@@ -59,7 +59,7 @@ class WifiClient:
             await self.__do_connect()
 
     async def connect(self):
-        print(f"My MAC addr: {WifiClient.prettify_mac(wifi.radio.mac_address)}")
+        print(f"My MAC Addr: {WifiClient.prettify_mac(wifi.radio.mac_address)}")
         if settings_missing():
             print("Not connecting to wifi, no credentials.")
             return

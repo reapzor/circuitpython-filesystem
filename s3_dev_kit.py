@@ -23,7 +23,7 @@ class S3DevKitSupport(HardwareSupport):
         return True
 
     def batt_voltage(self):
-        return 0
+        return -1
 
     def vbus_present(self):
         return False

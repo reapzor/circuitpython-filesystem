@@ -15,14 +15,20 @@ async def collect_gc():
 async def main():
     # Connect to Wifi and monitor connectivity
     await wifi_client.connect()
+
     # Create a GC collection task
     async_tasks.every(20000, collect_gc)
+
     # Start tasks
     async_tasks.start()
+
     # Start mqtt client
     await mqtt_client.connect()
+
+    # Start up system properties monitor
     mqtt_system_properties.generate_properties(mqtt_client)
     mqtt_system_properties.start_monitor()
+
     # Wait for tasks to finish
     await async_tasks.wait()
 
