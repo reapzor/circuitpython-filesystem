@@ -34,6 +34,13 @@ class WifiClient:
         wifi.radio.enabled = True
         failure = False
         try:
+            if self.wifi_reconnects >= 2:
+                if hardware:
+                    hardware.status_led().set_purple()
+                    from time import sleep
+                    sleep(500)
+                print("Reconnecting to wifi more than a couple times can cause a crash. Performing a Soft Reboot.")
+                supervisor.reload()
             wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
             if hardware:
                 hardware.status_led().blink_green(count=1, interval_on=500, interval_off=500)
@@ -42,6 +49,7 @@ class WifiClient:
             self.wifi_connect_attempts = 1
             print(f"Connected with IP: {wifi.radio.ipv4_address}")
         except Exception as e:
+            print(f"Capture Me {e}")
             failure = True
         if wifi.radio.ap_info is None or failure:
             self.wifi_connect_attempts += 1
