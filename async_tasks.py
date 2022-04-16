@@ -15,11 +15,6 @@ class AsyncTasks:
             for task in self.tasks:
                 if not task.running:
                     self.tasks.remove(task)
-        else:
-            for task in self.tasks:
-                if task.running:
-                    await task.stop()
-            self.tasks.clear()
 
     def add(self,
             task,
@@ -96,17 +91,11 @@ class AsyncTasks:
     async def stop(self):
         if self.monitor_task is not None:
             self.running = False
-            while len(self.tasks) > 0:
-                await asyncio.sleep_ms(1)
             await self.monitor_task.stop()
-            self.monitor_task = None
-
-    async def wait(self):
-        if self.monitor_task is not None:
-            while len(self.tasks) > 0:
-                await asyncio.sleep_ms(1)
-            self.running = False
-            await self.monitor_task.stop()
+            for task in self.tasks:
+                if task.running:
+                    await task.stop()
+            self.tasks.clear()
             self.monitor_task = None
 
 
