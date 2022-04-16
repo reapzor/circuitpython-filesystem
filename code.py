@@ -36,7 +36,7 @@ try:
     # Start watchdog
     watchdog_manager.start()
     watchdog_manager.auto_feed()
-    
+
     # Start tasks
     async_tasks.start()
 
@@ -50,7 +50,7 @@ try:
     asyncio.run(connect_mqtt())
 
     # Start up system properties monitor
-    mqtt_system_properties.generate_properties(mqtt_client)
+    mqtt_system_properties.generate_properties()
     mqtt_system_properties.start_monitor()
 
     # Keep main execution running and defer to the async loops for the rest of the program

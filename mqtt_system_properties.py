@@ -2,6 +2,7 @@ import time
 from async_tasks import async_tasks
 import wifi
 from wifi_client import WifiClient
+from mqtt_client import mqtt_client
 import gc
 import os
 
@@ -19,7 +20,7 @@ class MQTTSystemProperties:
         self.ip = None
         self.initial_publish = True
 
-    def generate_properties(self, mqtt_client):
+    def generate_properties(self):
         self.battery = mqtt_client.system_property("battery")
         self.wifi_strength = mqtt_client.system_property("wifi_strength")
         self.uptime = mqtt_client.system_property("uptime")
