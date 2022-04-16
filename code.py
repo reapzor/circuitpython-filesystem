@@ -7,6 +7,7 @@ from async_tasks import async_tasks
 from wifi_client import wifi_client
 from mqtt_client import mqtt_client
 from mqtt_system_properties import mqtt_system_properties
+from watchdog_manager import watchdog_manager
 
 
 # Collect Garbage
@@ -32,6 +33,10 @@ async def stay_awake():
 
 
 try:
+    # Start watchdog
+    watchdog_manager.start()
+    watchdog_manager.auto_feed()
+    
     # Start tasks
     async_tasks.start()
 

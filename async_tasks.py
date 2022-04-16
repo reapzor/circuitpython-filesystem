@@ -83,7 +83,7 @@ class AsyncTasks:
     def start(self):
         if self.monitor_task is None:
             self.running = True
-            self.monitor_task = TimerTask(self.__monitor_tasks, interval=2000)
+            self.monitor_task = TimerTask(self.__monitor_tasks, interval=4000)
             for task in self.tasks:
                 task.start()
             self.monitor_task.start()

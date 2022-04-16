@@ -10,7 +10,7 @@ class WatchdogManager:
         self.timeout = 60 * 10
         self.feed_task = None
 
-    def start_watchdog(self):
+    def start(self):
         watchdog.timeout = self.timeout
         watchdog.mode = WatchDogMode.RAISE
         watchdog.feed()
