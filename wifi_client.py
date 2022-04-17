@@ -1,7 +1,7 @@
 import asyncio
 from settings import settings, settings_missing
 import wifi
-import supervisor
+from reloader import reloader
 from hardware import hardware
 
 
@@ -40,7 +40,7 @@ class WifiClient:
                     from time import sleep
                     sleep(500)
                 print("Reconnecting to wifi more than a couple times can cause a crash. Performing a Soft Reboot.")
-                supervisor.reload()
+                reloader.reload()
             wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
             if hardware:
                 hardware.status_led().blink_green(count=1, interval_on=500, interval_off=500)
@@ -59,7 +59,7 @@ class WifiClient:
                     from time import sleep
                     sleep(500)
                 print("Repeated failures connecting to Wifi. Performing a Soft Reboot.")
-                supervisor.reload()
+                reloader.reload()
             print(f"Failure connecting to Wifi. Trying again.")
             if hardware:
                 hardware.status_led().blink_red(count=1, interval_on=500, interval_off=500)

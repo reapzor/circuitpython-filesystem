@@ -8,6 +8,7 @@ from wifi_client import wifi_client
 from mqtt_client import mqtt_client
 from mqtt_system_properties import mqtt_system_properties
 from watchdog_manager import watchdog_manager
+from reloader import reloader
 
 
 # Collect Garbage
@@ -58,4 +59,4 @@ try:
 
 except WatchDogTimeout as e:
     print("Watchdog timeout exception hit. Reloading.")
-    supervisor.reload()
+    reloader.reload()
