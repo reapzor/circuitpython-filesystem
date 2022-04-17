@@ -2,7 +2,6 @@ import asyncio
 import gc
 from microcontroller import watchdog
 from watchdog import WatchDogTimeout
-import supervisor
 from async_tasks import async_tasks
 from wifi_client import wifi_client
 from mqtt_client import mqtt_client

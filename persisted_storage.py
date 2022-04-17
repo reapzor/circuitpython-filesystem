@@ -1,8 +1,8 @@
-from alarm import sleep_memory
+from microcontroller import nvm
 from _persisted_helper import load_memory, save_memory
 
 
-class PersistedRam:
+class PersistedStorage:
 
     def __init__(self):
         self.loaded = False
@@ -10,10 +10,10 @@ class PersistedRam:
 
     def load(self):
         self.loaded = True
-        self._data = load_memory(sleep_memory)
+        self._data = load_memory(nvm)
 
     def save(self):
-        save_memory(self._data, sleep_memory)
+        save_memory(self._data, nvm, compare_existing=True)
 
     @property
     def data(self):
@@ -22,4 +22,4 @@ class PersistedRam:
         return self._data
 
 
-persisted_ram = PersistedRam()
+persisted_storage = PersistedStorage()
