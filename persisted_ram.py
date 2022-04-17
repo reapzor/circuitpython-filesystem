@@ -46,7 +46,6 @@ class PersistedRam:
         memory_size_bytes = memory_size.to_bytes(2, "big")
         sleep_memory[0:2] = magic_number_bytes
         sleep_memory[2:4] = memory_size_bytes
-        print(4 + memory_size)
         sleep_memory[4:(4 + memory_size)] = memory_string_bytes
 
     @property
