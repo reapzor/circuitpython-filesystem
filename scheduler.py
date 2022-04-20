@@ -31,14 +31,14 @@ class Scheduler:
 
     def schedule(self, task, args=None, kwargs=None, interval=1000):
         self.tasks.append(STask(task, args, kwargs, interval=interval))
+        self.start()
 
     async def schedule_loop(self):
-        while self.started:
-            if not self.tasks:
-                await asyncio.sleep_ms(10)
-                continue
+        while len(self.tasks) > 0:
             task = self.tasks.pop(0)
             await task.run_task()
+        self.started = False
+        self.runner_task = None
 
     def start(self):
         if self.started:
@@ -50,3 +50,4 @@ class Scheduler:
         if self.started:
             self.started = False
             await asyncio.gather(self.runner_task)
+            self.runner_task = None

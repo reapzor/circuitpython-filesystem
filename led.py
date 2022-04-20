@@ -109,8 +109,6 @@ class LEDManager:
             else:
                 self.scheduler.schedule(self.set_color, args=color, interval=interval_on)
             self.scheduler.schedule(self.turn_off, interval=interval_off)
-        if not self.scheduler.started:
-            self.scheduler.start()
 
     def blink_green(self, interval_on=1000, interval_off=1000, count=2):
         self.blink(color=[0, 255, 0], interval_on=interval_on, interval_off=interval_off, count=count)
