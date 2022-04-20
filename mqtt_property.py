@@ -1,4 +1,4 @@
-from settings import settings
+from thing_settings import thing_settings
 
 
 class MQTTProperty:
@@ -13,7 +13,7 @@ class MQTTProperty:
         self.mqtt_client = mqtt_client
 
     def mqtt_path(self):
-        return f"things/{settings.thing_name}/{self.group}/{self.key}"
+        return f"things/{thing_settings.thing_name}/{self.group}/{self.key}"
 
     async def publish(self, value=None):
         if not value:

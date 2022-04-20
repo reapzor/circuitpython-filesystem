@@ -2,6 +2,7 @@ import asyncio
 import gc
 from microcontroller import watchdog
 from watchdog import WatchDogTimeout
+from thing_settings import thing_settings
 from async_tasks import async_tasks
 from wifi_client import wifi_client
 from mqtt_client import mqtt_client
@@ -33,6 +34,9 @@ async def stay_awake():
 
 
 try:
+    # Configure and load thing settings
+    thing_settings.configure()
+
     # Start watchdog
     watchdog_manager.start()
     watchdog_manager.auto_feed()

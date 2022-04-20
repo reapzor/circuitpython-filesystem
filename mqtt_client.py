@@ -1,7 +1,7 @@
 from async_tasks import async_tasks
 from adafruit_minimqtt import adafruit_minimqtt as mqtt
 import socketpool
-from settings import settings, settings_missing
+from thing_settings import thing_settings
 from mqtt_property import MQTTProperty
 import wifi
 from wifi_client import wifi_client
@@ -46,11 +46,11 @@ class MQTTClient:
         await self._do_connect()
 
     async def _do_connect(self):
-        print(f"Connecting to MQTT at {settings.mqtt_broker}. Reconnects: ({self.reconnect_count}), Attempt: ({self.reconnect_attempts})")
+        print(f"Connecting to MQTT at {thing_settings.mqtt_broker}. Reconnects: ({self.reconnect_count}), Attempt: ({self.reconnect_attempts})")
         try:
             self.mqtt_client = mqtt.MQTT(
-                broker=settings.mqtt_broker,
-                client_id="thing_" + settings.thing_name.lower(),
+                broker=thing_settings.mqtt_broker,
+                client_id="thing_" + thing_settings.thing_name.lower(),
                 port=1883,
                 socket_pool=socketpool.SocketPool(wifi.radio)
             )
@@ -62,7 +62,7 @@ class MQTTClient:
             self.mqtt_client.connect()
             if hardware:
                 hardware.status_led().blink_green(count=2, interval_on=500, interval_off=300)
-            print(f"Connected to MQTT as \"{settings.thing_name}\".")
+            print(f"Connected to MQTT as \"{thing_settings.thing_name}\".")
             self.reconnect_count += 1
             self.connected = True
             self.mqtt_client.loop()
@@ -83,9 +83,6 @@ class MQTTClient:
 
     async def connect(self):
         # Set up a MiniMQTT Client
-        if settings_missing():
-            print("Not connecting MQTT Client - No server settings")
-            return
         await self._do_connect()
         self.loop_task = async_tasks.every(6000, self.do_loop)
 

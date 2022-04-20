@@ -1,5 +1,5 @@
 import asyncio
-from settings import settings, settings_missing
+from thing_settings import thing_settings
 import wifi
 from reloader import reloader
 from hardware import hardware
@@ -30,7 +30,7 @@ class WifiClient:
         return 2 * (db + 95)
 
     async def __do_connect(self):
-        print(f"Connecting to {settings.wifi_ssid}. Reconnects: ({self.wifi_reconnects}), Attempt: ({self.wifi_connect_attempts})")
+        print(f"Connecting to {thing_settings.wifi_ssid}. Reconnects: ({self.wifi_reconnects}), Attempt: ({self.wifi_connect_attempts})")
         wifi.radio.enabled = True
         failure = False
         try:
@@ -41,7 +41,7 @@ class WifiClient:
                     sleep(500)
                 print("Reconnecting to wifi more than a couple times can cause a crash. Performing a Soft Reboot.")
                 reloader.reload()
-            wifi.radio.connect(settings.wifi_ssid, settings.wifi_pass)
+            wifi.radio.connect(thing_settings.wifi_ssid, thing_settings.wifi_pass)
             if hardware:
                 hardware.status_led().blink_green(count=1, interval_on=500, interval_off=500)
             self.wifi_reconnects += 1
@@ -68,9 +68,6 @@ class WifiClient:
 
     async def connect(self):
         print(f"My MAC Addr: {WifiClient.prettify_mac(wifi.radio.mac_address)}")
-        if settings_missing():
-            print("Not connecting to wifi, no credentials.")
-            return
         if self.wifi_connected:
             print("Already connect(ed)(ing) to wifi.")
             return
