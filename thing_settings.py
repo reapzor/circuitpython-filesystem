@@ -23,7 +23,7 @@ class ThingSettings:
         self.load()
         if self.settings_configured and not force:
             return
-        print("User Settings required. Please enter the configuration details for this thing below.")
+        print("Thing Settings required. Please enter the configuration details for this thing below.")
         self.wifi_ssid = input("Enter WiFi SSID: ")
         self.wifi_pass = getpass("Enter WiFi Password: ")
         self.mqtt_broker = input("Enter MQTT Broker IP: ")
