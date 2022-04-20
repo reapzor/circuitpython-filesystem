@@ -36,7 +36,7 @@ class ThingSettings:
         persisted_storage.data["wpass"] = self.wifi_pass
         persisted_storage.data["mqttbrok"] = self.mqtt_broker
         persisted_storage.data["thname"] = self.thing_name
-        persisted_storage.data["set_conf"] = True
+        persisted_storage.data["set_conf"] = self.settings_configured
         persisted_storage.save()
 
 
