@@ -1,3 +1,5 @@
+import asyncio
+
 from scheduler import Scheduler
 
 
@@ -121,3 +123,53 @@ class LEDManager:
 
     def blink_purple(self, interval_on=1000, interval_off=1000, count=2):
         self.blink(color=[255, 0, 200], interval_on=interval_on, interval_off=interval_off, count=count)
+
+    def repeat_blink(self, color=None, interval_on=1000, interval_off=1000, start=True):
+        repeat_blink_task = RepeatBlinkTask(self.led, color=color, interval_on=interval_on, interval_off=interval_off)
+        if start:
+            repeat_blink_task.start()
+        return repeat_blink_task
+
+    def repeat_blink_green(self, interval_on=1000, interval_off=1000):
+        self.repeat_blink(color=[0, 255, 0], interval_on=interval_on, interval_off=interval_off)
+
+    def repeat_blink_red(self, interval_on=1000, interval_off=1000):
+        self.repeat_blink(color=[255, 0, 0], interval_on=interval_on, interval_off=interval_off)
+
+    def repeat_blink_blue(self, interval_on=1000, interval_off=1000):
+        self.repeat_blink(color=[0, 0, 255], interval_on=interval_on, interval_off=interval_off)
+
+    def repeat_blink_purple(self, interval_on=1000, interval_off=1000):
+        self.repeat_blink(color=[255, 0, 200], interval_on=interval_on, interval_off=interval_off)
+
+
+class RepeatBlinkTask:
+
+    def __init__(self, led, color=None, interval_on=1000, interval_off=1000):
+        self.led = led
+        self.color = color
+        self.interval_on = interval_on
+        self.interval_off = interval_off
+        self.running = False
+        self.running_task = None
+
+    async def __repeat_blink(self, color, interval_on, interval_off):
+        while self.running:
+            if self.color is None:
+                self.led.set_color(255, 255, 255)
+            else:
+                self.led.set_color(*color)
+            await asyncio.sleep_ms(interval_on)
+            self.led.turn_off()
+            await asyncio.sleep_ms(interval_off)
+
+    def start(self):
+        self.running = True
+        self.running_task = asyncio.create_task(self.__repeat_blink(color=self.color,
+                                                                    interval_on=self.interval_on,
+                                                                    interval_off=self.interval_off))
+
+    async def stop(self):
+        self.running = False
+        await asyncio.gather(self.running_task)
+        self.running_task = None

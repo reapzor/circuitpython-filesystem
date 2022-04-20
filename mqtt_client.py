@@ -135,5 +135,4 @@ class MQTTClient:
         await self._do_publish(path, value, retain)
 
 
-
 mqtt_client = MQTTClient()

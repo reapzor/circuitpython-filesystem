@@ -1,5 +1,6 @@
 from persisted_storage import persisted_storage
 from getpass import getpass
+from hardware import hardware
 
 
 class ThingSettings:
@@ -23,6 +24,8 @@ class ThingSettings:
         self.load()
         if self.settings_configured and not force:
             return
+        if hardware:
+            hardware.status_led().led.set_color(30, 0, 10)
         print("Thing Settings required. Please enter the configuration details for this thing below.")
         self.wifi_ssid = input("Enter WiFi SSID: ")
         self.wifi_pass = getpass("Enter WiFi Password: ")
@@ -30,6 +33,8 @@ class ThingSettings:
         self.thing_name = input("Enter a name for this thing: ")
         self.settings_configured = True
         self.save()
+        if hardware:
+            hardware.status_led().led.turn_off()
 
     def save(self):
         persisted_storage.data["wssid"] = self.wifi_ssid
